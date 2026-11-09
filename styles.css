@@ -146,21 +146,19 @@ p {
 }
 .fireworks span {
   position: absolute;
-  width: 24px;
-  height: 6px;
-  margin: -3px -12px;
-  border-radius: 1px;
-  background: var(--spark-color);
-  box-shadow:
-    0 0 3px #fff,
-    0 0 8px var(--spark-color),
-    0 0 14px var(--spark-color);
-  animation: firework-burst 1500ms ease-out both;
+  width: 8%;
+  height: 2%;
+  margin-top: -1%;
+  border-radius: 50%;
+  background: linear-gradient(to right, transparent, var(--spark-color) 55%, #fff6d5);
+  box-shadow: 0 0 8px var(--spark-color);
+  transform-origin: right center;
+  animation: exhaust-thrust 450ms ease-out both;
 }
-@keyframes firework-burst {
-  from { opacity: 0; transform: translate(0, 0) rotate(var(--angle)) scale(0.4); }
-  12% { opacity: 1; }
-  to { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--angle)) scale(0.1); }
+@keyframes exhaust-thrust {
+  from { opacity: 1; transform: translateX(-100%) scale(0.6); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translate(calc(-100% + var(--dx)), var(--dy)) scale(1.5, 0.15); }
 }
 @media (prefers-reduced-motion: reduce) {
   .fireworks { display: none; }
@@ -234,6 +232,21 @@ h2 {
 select {
   width: 100%;
   margin-top: 10px;
+}
+[data-tier="Beginner"] {
+  color: #8fcba6;
+}
+[data-tier="Intermediate"] {
+  color: #87c5ff;
+}
+[data-tier="Advanced"] {
+  color: #ffbd75;
+}
+[data-tier="Expert"] {
+  color: #ff9292;
+}
+#tier option {
+  background: #243541;
 }
 .rule {
   border-top: 1px solid #344650;

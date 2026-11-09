@@ -89,11 +89,14 @@ export default class GameScene extends Phaser.Scene {
     return null;
   }
   updateUI() {
+    const tier = names[Math.floor(this.current / LEVELS_PER_TIER)];
+    $("difficulty").dataset.tier = tier;
+    $("tier").dataset.tier = tier;
     $("moves").textContent = this.moves;
     $("par").textContent = this.levels[this.current].par;
     $("best").textContent = this.bests[this.current] || "—";
     $("difficulty").textContent =
-      names[Math.floor(this.current / LEVELS_PER_TIER)].toUpperCase() +
+      tier.toUpperCase() +
       " / CHALLENGE " +
       String((this.current % LEVELS_PER_TIER) + 1).padStart(2, "0");
     document.querySelectorAll(".levels button").forEach((b, i) => {
@@ -378,7 +381,7 @@ export default class GameScene extends Phaser.Scene {
     }
     this.cars.forEach((c, i) => {
       let pos = c.p + (this.drag && this.drag.i === i ? this.drag.offset : 0);
-      if (this.won && i === 0) pos = 6;
+      if (this.won && i === 0) pos = 4;
       let x = OX + (c.h ? pos : c.f) * C + 6,
         y = OY + (c.h ? c.f : pos) * C + 6,
         w = (c.h ? c.l : 1) * C - 12,
@@ -399,6 +402,9 @@ export default class GameScene extends Phaser.Scene {
     });
   }
   bindControls() {
+    Array.from($("tier").options).forEach((option) => {
+      option.dataset.tier = option.value;
+    });
     $("levels").replaceChildren();
     this.levels.forEach((level, i) => {
       const b = document.createElement("button");
@@ -448,38 +454,52 @@ export default class GameScene extends Phaser.Scene {
     };
   }
   showFireworks() {
+    const car = this.vehicles.getAt(0);
+    const game = $("game");
+    const endX = 560 + car.displayWidth;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      car.x = endX;
+      return () => {};
+    }
     const overlay = document.createElement("div");
     overlay.className = "fireworks";
     overlay.setAttribute("aria-hidden", "true");
-    const particleCount = 48;
-    // Right edge of the board, centered on the red car's exit lane.
-    // Percentages keep the origin aligned with the scaled 560 × 490 canvas.
-    const exitX = ((38 + 6 * 76) / 560) * 100;
-    const exitY = ((22 + 2.5 * 76) / 490) * 100;
-    for (let burst = 0; burst < 3; burst++) {
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement("span");
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 25 + Math.random() * 225;
-        particle.style.left = `${exitX}%`;
-        particle.style.top = `${exitY}%`;
-        particle.style.setProperty(
-          "--spark-color",
-          `hsl(${Math.random() * 360} 100% 65%)`,
-        );
-        particle.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
-        particle.style.setProperty(
-          "--dy",
-          `${Math.sin(angle) * distance + 45}px`,
-        );
-        particle.style.setProperty("--angle", `${angle}rad`);
-        particle.style.animationDelay = `${burst * 180 + Math.random() * 140}ms`;
-        particle.style.animationDuration = `${900 + Math.random() * 650}ms`;
-        overlay.append(particle);
+    game.append(overlay);
+    const startX = car.x;
+    const duration = 900;
+    const start = performance.now();
+    let frame;
+    let lastEmission = -30;
+    const animate = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      car.x = startX + (endX - startX) * progress * progress;
+      const rearX = car.x - car.displayWidth / 2;
+      if (elapsed - lastEmission >= 24 && rearX < 560) {
+        lastEmission = elapsed;
+        const scale = game.clientWidth / 560;
+        for (let i = 0; i < 5; i++) {
+          const particle = document.createElement("span");
+          particle.style.left = `${(rearX / 560) * 100}%`;
+          particle.style.top = `${((car.y + (Math.random() - 0.5) * 12) / 490) * 100}%`;
+          particle.style.setProperty(
+            "--spark-color",
+            `hsl(${(elapsed * 0.8 + i * 35) % 360} 100% 65%)`,
+          );
+          particle.style.setProperty("--dx", `${-(65 + Math.random() * 110) * scale}px`);
+          particle.style.setProperty("--dy", `${(Math.random() - 0.5) * 46 * scale}px`);
+          particle.style.animationDuration = `${300 + Math.random() * 250}ms`;
+          particle.addEventListener("animationend", () => particle.remove(), { once: true });
+          overlay.append(particle);
+        }
       }
-    }
-    document.getElementById("game").append(overlay);
-    return () => overlay.remove();
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(frame);
+      overlay.remove();
+    };
   }
   // Register tightly cropped frames from the 3-column, 5-row vehicle spritesheet.
   createVehicleFrames() {
