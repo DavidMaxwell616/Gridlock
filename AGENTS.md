@@ -6,6 +6,7 @@ The user prefers this compact Phaser project structure. Preserve it unless they 
 - `styles.css`: page layout, responsive styling, and fireworks animation styles.
 - `js/main.js`: ES module for startup, Phaser configuration, level loading, and responsive viewport fitting.
 - `js/GameScene.js`: default-exported `GameScene extends Phaser.Scene`. Owns puzzle state, rendering, input, controls, solver, progress persistence, and scene effects.
+- `js/SplashScene.js`: opening Phaser scene displaying `assets/Splash.png` and a Play button before GameScene.
 - `js/phaser.min.js`: bundled engine; do not edit or reformat vendor code.
 - `assets/`: level data and the vehicle spritesheet.
 

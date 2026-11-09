@@ -1,4 +1,5 @@
 import GameScene from "./GameScene.js";
+import SplashScene from "./SplashScene.js";
 // Reserve room for the game controls before sizing the board.
 function fitGameViewport(game) {
   const board = document.getElementById("game");
@@ -27,8 +28,12 @@ function fitGameViewport(game) {
       outerHeight(message) -
       16;
     // Very short windows may scroll, rather than make the puzzle unusable.
-    const height = Math.max(160, available);
-    const width = Math.min(section.clientWidth, (height * 560) / 490);
+    const splash = document.body.classList.contains("splash-screen");
+    const height = splash ? window.innerHeight : Math.max(160, available);
+    const width = Math.min(
+      splash ? window.innerWidth : section.clientWidth,
+      (height * 560) / 490,
+    );
     const value = `${width}px`;
     if (board.style.width !== value) {
       board.style.maxWidth = "none";
@@ -65,10 +70,11 @@ async function startGame() {
       backgroundColor: "#101b26",
       antialias: true,
       scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      scene: new GameScene(levels),
+      scene: [SplashScene, new GameScene(levels)],
     });
     fitGameViewport(game);
   } catch (error) {
+    document.body.classList.remove("splash-screen");
     console.error(error);
     document.getElementById("message").textContent =
       "Could not load the game. Please refresh.";

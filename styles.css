@@ -1,6 +1,48 @@
 * {
   box-sizing: border-box;
 }
+body.splash-screen {
+  background: #ffdc00;
+}
+.splash-screen main {
+  max-width: none;
+  min-height: 100dvh;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.splash-screen .layout {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+.splash-screen header,
+.splash-screen aside,
+.splash-screen #difficulty,
+.splash-screen .stats,
+.splash-screen .controls,
+.splash-screen #message {
+  display: none;
+}
+.splash-play {
+  position: absolute;
+  z-index: 2;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 140px;
+  background: #c90000;
+  color: #fff;
+  border: 2px solid #a90000;
+  font-weight: bold;
+}
+.splash-play:hover {
+  background: #a90000;
+}
+.splash-play:focus-visible {
+  outline-color: #a90000;
+  outline-offset: 3px;
+}
 body {
   margin: 0;
   background: #101b26;
